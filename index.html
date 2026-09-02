@@ -1,6 +1,4 @@
-<title>Builder Codesheet Pre-Test</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI &amp; Agent Pre-Test</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
@@ -257,7 +255,7 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
 </style>
 
 <div class="bar">
-  <div class="brand"><span class="eyebrow">Pre-test</span><b>Builder Codesheet</b></div>
+  <div class="brand"><span class="eyebrow">Pre-test</span><b>AI &amp; Agent coding</b></div>
   <div class="steps" id="steps">
     <span class="step" data-s="learn">1 Definitions</span>
     <span class="step" data-s="quiz">2 Check</span>
@@ -275,13 +273,16 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
 <!-- 1. DEFINITIONS -->
 <section class="wrap" id="learn">
   <span class="eyebrow">Pilot &middot; about 25 minutes</span>
-  <h1>Is this builder an AI? Is it an agent?</h1>
-  <p class="lede">Thank you for testing this. We are checking whether the <b>instructions</b> are clear
-  &mdash; not whether you get the "right" answers. If something is confusing, that is a finding, and
-  there is a box at the end to tell us about it.</p>
-  <p class="lede">You will read two definitions, answer three quick checks, then code 20 real products
-  built on Polymarket. Each card contains the product's own website, captured for this study, so you
-  never need to leave the page. For each product you answer two yes/no questions.</p>
+  <h1>Is this product an AI? Is it an agent?</h1>
+  <p class="lede">A <b>prediction market</b> lets people bet on whether something will happen &mdash;
+  an election result, a match, a price. <b>Polymarket</b> is the largest one. Every question is a
+  <i>market</i>, and every market has a <b>price between 0 and 1</b>: that price is the crowd's
+  probability that the event happens.</p>
+  <p class="lede">Many independent tools are built on top of Polymarket &mdash; dashboards, wallets,
+  trading bots, copy-trading services, AI forecasters. Each card shows <b>one such product</b> through
+  its own website, captured for this study, so you never leave this page.</p>
+  <p class="lede">For each product you answer <b>two yes/no questions</b>, defined below. The definitions
+  stay beside you on every card. This is a test of the <b>instructions</b>, not of you &mdash; if anything is unclear, say so in the box at the end.</p>
 
   <div class="defs">
     <div class="dcard">
@@ -324,6 +325,19 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
           users can execute trades by hand, or because it sends signals and alerts a person must act on.</p></div>
       </div>
     </div>
+  </div>
+
+  <div class="rules">
+    <div class="rule"><span class="n">1</span><p><b>Read the site in the card.</b> The screenshot scrolls,
+      and the <b>Page text</b> tab holds the whole page &mdash; check it before answering.</p></div>
+    <div class="rule"><span class="n">2</span><p><b>Answer Yes only when the site says so.</b> A name like
+      &ldquo;PolyAI&rdquo; proves nothing on its own.</p></div>
+    <div class="rule"><span class="n">3</span><p><b>The two questions are independent.</b> A product can be
+      one, both, or neither.</p></div>
+    <div class="rule"><span class="n">4</span><p><b>If the site is blank or dead,</b> tick <b>No usable site</b>
+      and move on.</p></div>
+    <div class="rule"><span class="n">5</span><p><b>Work alone.</b> Do not discuss the products with other
+      people while coding.</p></div>
   </div>
 
   <div class="panel" style="margin-top:24px; display:flex; gap:16px; align-items:center; flex-wrap:wrap">
@@ -480,7 +494,7 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
 <script>
 "use strict";
 const ITEMS = JSON.parse(document.getElementById("payload").textContent);
-// reference labels for ALL builders, so answers from an earlier item set still score
+// reference labels for ALL products, so answers from an earlier item set still score
 const REF = JSON.parse(document.getElementById("reflabels").textContent);
 const ADMIN_PW = "";   // never embedded in the public build
 const N = ITEMS.length;
@@ -678,7 +692,7 @@ function render(){
   const b = cur(), L = labels[b.k] || {};
   $("pos").textContent = (idx + 1) + " / " + N;
   $("pName").textContent = b.p;
-  $("bName").textContent = "builder: " + b.b;
+  $("bName").textContent = (b.cu || b.u).replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   $("addr").textContent = b.cu || b.u;
   const hasShot = !!b.img, hasText = !!(b.t && b.t.length > 20);
   if (hasShot) $("shot").src = b.img; else $("shot").removeAttribute("src");
@@ -784,7 +798,7 @@ function kWord(k){
 }
 
 function collect(rs){
-  // One row per (tester, builder) for EVERY label the tester stored - including builders
+  // One row per (tester, product) for EVERY label the tester stored - including products
   // that are no longer in this build of the pilot. Rebuilding with a different selection
   // must never make a completed run look unfinished.
   const inSet = new Set(ITEMS.map(i => i.k));

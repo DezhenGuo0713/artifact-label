@@ -43,6 +43,15 @@ a{color:var(--accent)}
 .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600;
   letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3)}
 .hidden{display:none !important}
+.lpage{display:none} .lpage.on{display:block}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+.ex{display:grid;gap:9px;margin-top:10px}
+.ex div{font-size:13.5px;line-height:1.55;color:var(--ink-2);padding:9px 12px;border-radius:8px;
+  background:var(--surface-2);border:1px solid var(--line)}
+.ex div b{color:var(--ink)}
+.ex div.not{background:var(--warn-soft);border-color:var(--warn)}
+.ex.small div{font-size:12.5px;padding:7px 10px}
+
 .warnbox{background:var(--no-soft);border-left:3px solid var(--no);
   border-radius:0 8px 8px 0;padding:12px 15px;color:var(--ink)}
 .resume{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;
@@ -257,7 +266,7 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
 <div class="bar">
   <div class="brand"><span class="eyebrow">Pre-test</span><b>AI &amp; Agent coding</b></div>
   <div class="steps" id="steps">
-    <span class="step" data-s="learn">1 Definitions</span>
+    <span class="step" data-s="learn">1 Introduction</span>
     <span class="step" data-s="quiz">2 Check</span>
     <span class="step" data-s="code">3 Code 20</span>
     <span class="step" data-s="survey">4 Feedback</span>
@@ -274,17 +283,26 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
 <section class="wrap" id="learn">
   <span class="eyebrow">Pilot &middot; about 25 minutes</span>
   <h1>Is this product an AI? Is it an agent?</h1>
-  <p class="lede">A <b>prediction market</b> lets people bet on whether something will happen &mdash;
-  an election result, a match, a price. <b>Polymarket</b> is the largest one. Every question is a
-  <i>market</i>, and every market has a <b>price between 0 and 1</b>: that price is the crowd's
-  probability that the event happens.</p>
-  <p class="lede">Many independent tools are built on top of Polymarket &mdash; dashboards, wallets,
-  trading bots, copy-trading services, AI forecasters. Each card shows <b>one such product</b> through
-  its own website, captured for this study, so you never leave this page.</p>
-  <p class="lede">For each product you answer <b>two yes/no questions</b>, defined below. The definitions
-  stay beside you on every card. This is a test of the <b>instructions</b>, not of you &mdash; if anything is unclear, say so in the box at the end.</p>
 
-  <div class="defs">
+  <div class="lpage on" data-page="1">
+    <p class="eyebrow" style="margin-top:22px">Page 1 of 3 &middot; what you are labelling</p>
+    <p class="lede">We are studying the tools people use to trade on Polymarket. For each tool we want to know two
+    things: does it use an <b>AI language model to predict market probabilities</b>, and does it
+    <b>place trades by itself</b>? Your answers are compared with ours, so we can tell whether these two ideas
+    are clear from a product's website alone. This is a test of the <b>instructions</b>, not of you &mdash; if anything is unclear, say so in the box at the end.</p>
+    <p class="lede">A <b>prediction market</b> lets people bet on whether something will happen &mdash; an
+    election result, a match, a price. <b>Polymarket</b> is the largest one. Every question is a <i>market</i>,
+    and every market has a <b>price between 0 and 1</b>: that price is the crowd's probability that the event
+    happens.</p>
+    <p class="lede">Many independent tools are built on top of Polymarket &mdash; dashboards, wallets, trading
+    bots, copy-trading services, AI forecasters. Each card shows <b>one such product</b> through its own website,
+    captured for this study, so you never leave this page. For each product you answer <b>two yes/no
+    questions</b>; the next two pages define them, and they stay beside you on every card.</p>
+    <div class="pager"><span></span><button class="go" type="button" data-go="1">Next &rarr;</button></div>
+  </div>
+
+  <div class="lpage" data-page="2">
+    <p class="eyebrow" style="margin-top:22px">Page 2 of 3 &middot; products with an AI feature</p>
     <div class="dcard">
       <header><h2>1. AI <em>Does a large language model predict the market's probability?</em></h2></header>
       <div class="dbody">
@@ -294,19 +312,17 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
         implied probability. A product is AI when a language model forms its <b>own</b> estimate of that
         probability &mdash; the gap between its estimate and the market price is the
         <b>predicted opportunity</b> it offers the trader.</p></div>
-        <dl class="yn" style="margin-top:14px">
-          <dt class="dt-y">YES</dt><dd>The site says an LLM forecasts, estimates, scores, or reasons about how
-            likely an outcome is &mdash; AI-generated odds, probabilities, forecasts, edge, or mispricing
-            against the market price.</dd>
-          <dt class="dt-n">NO</dt><dd>No language model produces a probability or forecast. Analytics,
-            dashboards, wallets, terminals, exchanges, alerts, news feeds and copy trading are not AI on
-            their own.</dd>
-        </dl>
-        <div class="never"><p><b>Do not code AI</b> merely because of generic automation, rankings,
-          &ldquo;smart&rdquo; scores, or &ldquo;AI&rdquo; in the product's name or branding. The site must tie a
-          language model to predicting how likely an outcome is.</p></div>
+        <p class="lede" style="margin-top:16px">In practice this is a product that asks a language model to read the
+        news and say <b>how likely an outcome is</b> &mdash; then shows you that number, or the gap between it and
+        the market price, as a reason to trade.</p>
       </div>
     </div>
+    <div class="pager"><button class="nav" type="button" data-go="-1">&larr; Back</button>
+      <button class="go" type="button" data-go="1">Next &rarr;</button></div>
+  </div>
+
+  <div class="lpage" data-page="3">
+    <p class="eyebrow" style="margin-top:22px">Page 3 of 3 &middot; products that act as an agent</p>
     <div class="dcard">
       <header><h2>2. Agent <em>Does the product execute trades automatically?</em></h2></header>
       <div class="dbody">
@@ -315,35 +331,34 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
         <div class="aside"><p>The test is <b>who presses the button</b>. If the product executes on the
         trader's behalf once it is set up, it is an agent. If a person must place every order themselves,
         it is not.</p></div>
-        <dl class="yn" style="margin-top:14px">
-          <dt class="dt-y">YES</dt><dd>The site says the product automatically places, executes, mirrors, or
-            copies trades, runs trading strategies, or trades while the user is away.</dd>
-          <dt class="dt-n">NO</dt><dd>It is analytics, alerts, a wallet, an exchange, research, news,
-            portfolio tracking, or a manual trading terminal only.</dd>
-        </dl>
-        <div class="never"><p><b>Do not code Agent</b> merely because there is a trading interface, because
-          users can execute trades by hand, or because it sends signals and alerts a person must act on.</p></div>
+        <p class="eyebrow" style="margin-top:16px">What an agent looks like</p>
+        <div class="ex">
+          <div><b>Copy trading</b> &mdash; you choose a trader or wallet; the product mirrors every trade they make,
+            in your account, as they make it.</div>
+          <div><b>Automated strategy</b> &mdash; you set a rule such as &ldquo;buy YES when the price falls below
+            0.30&rdquo;; the product executes the moment the rule fires.</div>
+          <div><b>Trading bot</b> &mdash; runs around the clock, opening and closing positions on its own.</div>
+          <div><b>Rule-based execution</b> &mdash; a stop-loss or take-profit that sells automatically at a level
+            you set.</div>
+          <div class="not"><b>Not an agent</b> &mdash; a dashboard, alert or signal that you still have to act on by
+            hand.</div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="rules">
-    <div class="rule"><span class="n">1</span><p><b>Read the site in the card.</b> The screenshot scrolls,
-      and the <b>Page text</b> tab holds the whole page &mdash; check it before answering.</p></div>
-    <div class="rule"><span class="n">2</span><p><b>Answer Yes only when the site says so.</b> A name like
-      &ldquo;PolyAI&rdquo; proves nothing on its own.</p></div>
-    <div class="rule"><span class="n">3</span><p><b>The two questions are independent.</b> A product can be
-      one, both, or neither.</p></div>
-    <div class="rule"><span class="n">4</span><p><b>If the site is blank or dead,</b> tick <b>No usable site</b>
-      and move on.</p></div>
-    <div class="rule"><span class="n">5</span><p><b>Work alone.</b> Do not discuss the products with other
-      people while coding.</p></div>
-  </div>
-
-  <div class="panel" style="margin-top:24px; display:flex; gap:16px; align-items:center; flex-wrap:wrap">
-    <button class="go" id="toQuiz" type="button">I have read both &mdash; continue</button>
-    <p class="hint" style="flex:1 1 240px">The definitions stay beside you on every card, so you do not
-    need to memorise them.</p>
+    <div class="rules" style="margin-top:22px">
+      <div class="rule"><span class="n">1</span><p><b>Read the site in the card.</b> The screenshot scrolls, and the
+        <b>Page text</b> tab holds the whole page &mdash; check it before answering.</p></div>
+      <div class="rule"><span class="n">2</span><p><b>Answer Yes only when the site says so.</b> A name like
+        &ldquo;PolyAI&rdquo; proves nothing on its own.</p></div>
+      <div class="rule"><span class="n">3</span><p><b>The two questions are independent.</b> A product can be one,
+        both, or neither.</p></div>
+      <div class="rule"><span class="n">4</span><p><b>If the site is blank or dead,</b> tick <b>No usable site</b>
+        and move on.</p></div>
+      <div class="rule"><span class="n">5</span><p><b>Work alone.</b> Do not discuss the products with other people
+        while coding.</p></div>
+    </div>
+      <div class="pager"><button class="nav" type="button" data-go="-1">&larr; Back</button>
+        <button class="go" id="toQuiz" type="button">I have read all three &mdash; start the checks</button></div>
   </div>
 </section>
 
@@ -373,13 +388,6 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
         market outcome</b>.</p>
         <div class="aside"><p>The market price <b>is</b> the market's probability. AI means a language model
         forms its <b>own</b> estimate of it &mdash; the gap is the <b>predicted opportunity</b>.</p></div>
-        <dl class="yn" style="margin-top:11px">
-          <dt class="dt-y">YES</dt><dd>An LLM forecasts, estimates, or scores how likely an outcome is.</dd>
-          <dt class="dt-n">NO</dt><dd>No language model produces a probability. Analytics, dashboards, wallets,
-            terminals, alerts, news and copy trading are not AI on their own.</dd>
-        </dl>
-        <div class="never"><p><b>Not AI</b> from generic automation, rankings, &ldquo;smart&rdquo; scores, or
-          &ldquo;AI&rdquo; in the branding.</p></div>
       </div>
       <div class="def">
         <h3><span class="dot"></span>2. Agent</h3>
@@ -387,14 +395,13 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
         rule-based execution, and copy trading</b> &mdash; without manual order entry.</p>
         <div class="aside"><p>The test is <b>who presses the button</b>. Executes for the trader once set up
         &rarr; agent. A person places every order &rarr; not.</p></div>
-        <dl class="yn" style="margin-top:11px">
-          <dt class="dt-y">YES</dt><dd>Automatically places, executes, mirrors or copies trades, or trades
-            while the user is away.</dd>
-          <dt class="dt-n">NO</dt><dd>Analytics, alerts, a wallet, an exchange, research, news, portfolio
-            tracking, or a manual trading terminal only.</dd>
-        </dl>
-        <div class="never"><p><b>Not Agent</b> from a trading interface, manual execution, or signals and
-          alerts a person must act on.</p></div>
+        <div class="ex small">
+          <div><b>Copy trading</b> &mdash; mirrors a chosen trader's every trade in your account.</div>
+          <div><b>Automated strategy</b> &mdash; a rule you set, executed when it fires.</div>
+          <div><b>Trading bot</b> &mdash; opens and closes positions on its own, around the clock.</div>
+          <div><b>Rule-based execution</b> &mdash; stop-loss / take-profit that sells by itself.</div>
+          <div class="not"><b>Not an agent</b> &mdash; a dashboard, alert or signal you act on by hand.</div>
+        </div>
       </div>
     </div>
   </aside>
@@ -1158,6 +1165,18 @@ async function exportCsv(rows, filename){
   $("csvFallback").classList.remove("hidden");
   $("csvBox").value = text; $("csvBox").select();
 }
+
+
+/* ---- three-page introduction ---- */
+let learnPage = 1;
+function showLearn(n){
+  learnPage = Math.max(1, Math.min(3, n));
+  document.querySelectorAll(".lpage").forEach(el =>
+    el.classList.toggle("on", el.dataset.page === String(learnPage)));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.querySelectorAll("[data-go]").forEach(b =>
+  b.addEventListener("click", () => showLearn(learnPage + Number(b.dataset.go))));
 
 /* ---- wiring ---- */
 (async function init(){

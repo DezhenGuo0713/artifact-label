@@ -557,7 +557,7 @@ function show(which){
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 // Static build: no platform runtime. Results travel over plain HTTPS to the collector.
-const SUBMIT_URL = "NOT-CONFIGURED";
+const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzIWOzuJfevXMWJ_WDDTQqakB76I_KzLhxPLjIy5E4UZMo59zaWHlNYtZSlDbqULBHW/exec";
 let adminKey = "";
 async function connect(){ return null; }
 function collectorConfigured(){ return /^https:\/\/script\.google\.com\//.test(SUBMIT_URL); }

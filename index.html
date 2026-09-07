@@ -210,6 +210,8 @@ a{color:var(--accent)}
   font-weight:500; font-size:13.5px}
 .nav:hover{background:var(--sunk)}
 .nav[disabled]{opacity:.4; cursor:not-allowed}
+.danger{border-color:var(--no); color:var(--no); background:var(--surface)}
+.danger:hover{background:var(--no-soft)}
 .next{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600; padding:9px 18px}
 
 /* survey */
@@ -825,6 +827,44 @@ function showCard(k, row){
   $("cardView").classList.remove("hidden");
 }
 function hideCard(){ $("cardView").classList.add("hidden"); }
+
+/* ---- admin: delete stored submissions -------------------------------------------
+   Irreversible, so both entry points confirm first and the 'all' one asks the person
+   to type the word. deleteRuns() is the only place that removes anything; the static
+   build swaps its body for the collector call. */
+async function deleteRuns(ids){
+  if (!collectorConfigured()) return { ok: false, why: "collector not configured" };
+  try {
+    const res = await fetch(SUBMIT_URL, { method: "POST", redirect: "follow",
+      body: JSON.stringify({ action: "delete", key: adminKey, ids: ids }) });
+    const j = await res.json();
+    if (j && j.ok) return { ok: true, deleted: j.deleted || 0 };
+    return { ok: false, why: (j && j.error) || ("HTTP " + res.status) };
+  } catch (e) {
+    return { ok: false, why: String((e && e.message) || e) };
+  }
+}
+async function runDelete(ids, what){
+  if (!ids.length) return;
+  const msg = "Delete " + what + "?\n\nThis cannot be undone. Download the CSV first "
+            + "if you want a copy.";
+  if (!confirm(msg)) return;
+  if (ids.length > 1){
+    const typed = prompt("Type DELETE to remove all " + ids.length + " submissions.");
+    if (String(typed || "").trim().toUpperCase() !== "DELETE") return;
+  }
+  adminMsg("<p class='hint'>Deleting\u2026</p>");
+  const res = await deleteRuns(ids);
+  if (!res.ok){
+    adminMsg("<p class='hint'><b>Delete failed.</b><br><span class='mono'>" +
+      esc(res.why || "unknown error") + "</span><br>" +
+      (res.deleted ? res.deleted + " were removed before it stopped. " : "Nothing was removed. ") +
+      "<button class='nav' id='btnRefresh' type='button' style='margin-top:10px'>Back</button></p>");
+    const b = $("btnRefresh"); if (b) b.onclick = loadAdmin;
+    return;
+  }
+  await loadAdmin();
+}
 // the product name is a link in both admin tables; one delegated handler serves both
 function wireCards(host, rowsFor){
   host.querySelectorAll("[data-card]").forEach(el => el.addEventListener("click", (ev) => {
@@ -1098,7 +1138,8 @@ function renderOverview(){
 
     "<div style='display:flex;gap:10px;flex-wrap:wrap;margin-top:26px'>" +
     "<button class='go' id='btnCsv' type='button'>Download responses (CSV)</button>" +
-    "<button class='nav' id='btnRefresh' type='button'>Refresh</button></div>" +
+    "<button class='nav' id='btnRefresh' type='button'>Refresh</button>" +
+    "<button class='nav danger' id='btnWipe' type='button'>Delete all submissions</button></div>" +
     "<div class='field hidden' id='csvFallback' style='margin-top:14px'>" +
     "<p class='hint'>Select all and copy</p><textarea id='csvBox' " +
     "style='min-height:220px;font-family:\"IBM Plex Mono\",monospace;font-size:11px'></textarea></div>";
@@ -1108,6 +1149,9 @@ function renderOverview(){
   wireCards(host, null);
   $("btnRefresh").onclick = loadAdmin;
   $("btnCsv").onclick = () => exportCsv(ADMIN.rows, "pilot_responses.csv");
+  $("btnWipe").onclick = () => runDelete(
+    ADMIN.rs.map(x => x.submissionId || x.raterId),
+    "every stored submission (" + ADMIN.rs.length + ")");
 }
 
 function renderCoder(id){
@@ -1190,7 +1234,8 @@ function renderCoder(id){
       : "<p class='hint'>They did not reach the feedback step.</p>") +
 
     "<div style='display:flex;gap:10px;margin-top:26px'>" +
-    "<button class='go' id='btnCsvOne' type='button'>Download this coder (CSV)</button></div>" +
+    "<button class='go' id='btnCsvOne' type='button'>Download this coder (CSV)</button>" +
+    "<button class='nav danger' id='btnDelOne' type='button'>Delete this submission</button></div>" +
     "<div class='field hidden' id='csvFallback' style='margin-top:14px'>" +
     "<p class='hint'>Select all and copy</p><textarea id='csvBox' " +
     "style='min-height:200px;font-family:\"IBM Plex Mono\",monospace;font-size:11px'></textarea></div>";
@@ -1198,6 +1243,7 @@ function renderCoder(id){
   $("btnBack").onclick = renderOverview;
   wireCards(host, (k) => mine.find(x => x.k === k) || null);
   $("btnCsvOne").onclick = () => exportCsv(mine, id + "_responses.csv");
+  $("btnDelOne").onclick = () => runDelete([id], "this submission (" + id + ")");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 

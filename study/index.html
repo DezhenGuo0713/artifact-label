@@ -803,6 +803,26 @@ function esc(t){
     ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
 }
 
+/* ---- times are stored as UTC and shown in Miami time -----------------------------
+   Submissions carry an ISO timestamp in UTC. Every reader of this panel is working in
+   Miami, so that is what the panel shows; America/New_York also gets the daylight
+   saving change right, which a fixed offset would not. */
+const TZ = "America/New_York";
+let TZFMT = null;
+try {
+  TZFMT = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, hour12: false,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit" });
+} catch (e) { TZFMT = null; }
+function fmtTime(iso){
+  if (!iso) return "\u2014";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return String(iso).slice(0, 16).replace("T", " ");
+  if (!TZFMT) return String(iso).slice(0, 16).replace("T", " ") + " UTC";
+  // en-CA gives YYYY-MM-DD, and the comma between date and time is not wanted
+  return TZFMT.format(d).replace(",", "");
+}
+
 /* ---- admin: show a product exactly as the labelling interface presented it ----
    Read-only on purpose. Opening a card from the admin must never touch the labels or
    the draft of whoever is looking at the panel. */
@@ -855,10 +875,16 @@ async function runDelete(ids, what){
   adminMsg("<p class='hint'>Deleting\u2026</p>");
   const res = await deleteRuns(ids);
   if (!res.ok){
+    // "malformed" / "unknown action" means the deployed Apps Script predates delete
+    const stale = /malformed|unknown action/i.test(String(res.why || ""));
     adminMsg("<p class='hint'><b>Delete failed.</b><br><span class='mono'>" +
       esc(res.why || "unknown error") + "</span><br>" +
       (res.deleted ? res.deleted + " were removed before it stopped. " : "Nothing was removed. ") +
-      "<button class='nav' id='btnRefresh' type='button' style='margin-top:10px'>Back</button></p>");
+      (stale ? "<br><br><b>The collector is running an older script.</b> Open the Apps Script " +
+               "project, paste the current <span class='mono'>gsheet/Code.gs</span>, then " +
+               "<b>Deploy &rarr; Manage deployments &rarr; edit &rarr; New version</b>. " +
+               "Deleting works as soon as that is done." : "") +
+      "<button class='nav' id='btnRefresh' type='button' style='margin-top:10px;display:block'>Back</button></p>");
     const b = $("btnRefresh"); if (b) b.onclick = loadAdmin;
     return;
   }
@@ -1049,7 +1075,7 @@ function renderOverview(){
       "<td class='num'>" + (st.kG === null ? "\u2014" : st.kG.toFixed(2)) + "</td>" +
       "<td class='num'>" + st.mins + "</td>" +
       "<td>" + (r.survey && Object.keys(r.survey).length ? "yes" : "\u2014") + "</td>" +
-      "<td class='mono'>" + esc(String(r.submittedAt || "").slice(0,16).replace("T"," ")) + "</td>" +
+      "<td class='mono'>" + esc(fmtTime(r.submittedAt)) + "</td>" +
       "<td class='go-arrow'>&rsaquo;</td></tr>";
   }).join("");
 
@@ -1098,7 +1124,8 @@ function renderOverview(){
     "a product-by-product comparison.</p>" +
     "<div class='panel' style='padding:0;overflow:hidden'><div class='scroll'><table class='tbl'>" +
     "<thead><tr><th>Coder / run</th><th>Coded</th><th>Check</th><th>AI agree</th><th>kappa AI</th>" +
-    "<th>Agent agree</th><th>kappa Agent</th><th>Min</th><th>Feedback</th><th>Started</th><th></th>" +
+    "<th>Agent agree</th><th>kappa Agent</th><th>Min</th><th>Feedback</th>" +
+    "<th>Submitted (Miami)</th><th></th>" +
     "</tr></thead><tbody>" + coderRows + "</tbody></table></div></div>" +
 
     "<h3 style='margin-top:26px'>By product</h3>" +
@@ -1190,8 +1217,9 @@ function renderCoder(id){
     "<p class='hint' style='margin-top:6px'>Submission <span class='mono'>" + esc(id) + "</span>" +
       (ADMIN.rs.filter(x => x.coder === r.coder).length > 1
         ? " &middot; run " + r.__n + " of " + ADMIN.rs.filter(x => x.coder === r.coder).length : "") +
-      " &middot; started " + esc(String(r.startedAt || "").slice(0,16).replace("T"," ")) +
-      " &middot; submitted " + esc(String(r.submittedAt || "").slice(0,16).replace("T"," ")) + "</p>" +
+      " &middot; started " + esc(fmtTime(r.startedAt)) +
+      " &middot; submitted " + esc(fmtTime(r.submittedAt)) +
+      " <span class='hint'>(Miami time)</span></p>" +
     '<div class="kpis">' +
       kpi("Products answered", mine.filter(x => x.ai !== null || x.dead).length + " / " + N) +
       kpi("Comprehension", qN ? qOK + " / " + qN : "\u2014") +
@@ -1247,13 +1275,16 @@ function renderCoder(id){
 }
 
 async function exportCsv(rows, filename){
-  const head = ["submission_id","coder","builder_code","ProductName","PageCaptured","coder_AI","coder_Agent",
+  const head = ["submission_id","coder","submitted_utc","submitted_miami",
+                "builder_code","ProductName","PageCaptured","coder_AI","coder_Agent",
                 "human_AI","human_Agent","AI_match","Agent_match","SiteUsable","seconds_on_item"];
   const q = v => /[",\n\r]/.test(String(v)) ? '"' + String(v).replace(/"/g,'""') + '"' : String(v);
   const byKey = Object.fromEntries(ITEMS.map(i => [i.k, i]));
   const sub = Object.fromEntries(ADMIN.rs.map(x => [x.submissionId || x.raterId, x.coder || ""]));
+  const when = Object.fromEntries(ADMIN.rs.map(x => [x.submissionId || x.raterId, x.submittedAt || ""]));
   const text = [head.join(",")].concat(rows.map(r => [
-    r.rater, sub[r.rater] || "", byKey[r.k] ? byKey[r.k].code : r.k, r.p, r.url,
+    r.rater, sub[r.rater] || "", when[r.rater] || "", fmtTime(when[r.rater]),
+    byKey[r.k] ? byKey[r.k].code : r.k, r.p, r.url,
     r.ai === null ? "" : r.ai, r.ag === null ? "" : r.ag,
     r.xa === null ? "" : r.xa, r.xg === null ? "" : r.xg,
     (r.ai !== null && r.xa !== null) ? (r.ai === r.xa ? 1 : 0) : "",

@@ -666,6 +666,21 @@ async function submitRun(){
 }
 
 /* ---- quiz ---- */
+// The Start button is gated on having ANSWERED all three, not on getting them right -
+// a wrong answer must never trap anyone. This runs after a click AND after a draft is
+// restored; when it only ran on click, a returning coder was stuck for good, because the
+// click handler ignores repeat answers.
+function refreshQuizGate(){
+  const done = Object.keys(quizAns).length;
+  const btn = $("toCode"), note = $("quizNote");
+  if (btn) btn.disabled = done < QUIZ.length;
+  if (note){
+    note.textContent = done === 0 ? "" :
+      done < QUIZ.length ? (QUIZ.length - done) + " to go." :
+      "All three answered. Your first answers are recorded - press Start below.";
+  }
+}
+
 function buildQuiz(){
   const host = $("quizHost");
   QUIZ.forEach((it, i) => {
@@ -698,14 +713,12 @@ function buildQuiz(){
       fb.className = "fb " + (right ? "ok" : "no");
       fb.innerHTML = "<b>" + (right ? "Correct." : "Not quite - the answer is " +
         (it.ans === "1" ? "Yes" : "No") + ".") + "</b> " + it.why;
-      const done = Object.keys(quizAns).length;
-      $("quizNote").textContent = done < 3 ? (3 - done) + " to go." :
-        "All three answered. Your first answers are recorded.";
-      $("toCode").disabled = done < 3;
+      refreshQuizGate();
       saveDraft();
     }));
     host.appendChild(wrap);
   });
+  refreshQuizGate();          // answers restored from a draft count too
 }
 
 /* ---- coding ---- */

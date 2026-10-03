@@ -179,6 +179,13 @@ a{color:var(--accent)}
 .view{max-height:520px; overflow:auto; overscroll-behavior:contain; background:#fff}
 .view.tall{max-height:none}
 .view img{display:block; width:100%; height:auto}
+/* a capture can be a short screen recording: fitted to the window, full size on Expand */
+.view video{display:block; width:100%; height:auto; max-height:max(300px, min(72vh,680px)); background:#0b0d12}
+.view.isvid{max-height:none; overflow:visible}
+.view.tall video{max-height:none; width:auto; max-width:100%; margin:0 auto}
+.vidnote{margin:0; padding:8px 14px; font-size:12.5px; color:var(--ink-3); background:var(--surface-2);
+  border-top:1px solid var(--line)}
+.cv video.cvshot{background:#0b0d12; max-height:72vh}
 .viewText{background:var(--surface); padding:16px 18px}
 .ptext{margin:0; font-size:13.5px; line-height:1.62; color:var(--ink-2); white-space:pre-wrap; word-break:break-word}
 .capfail{padding:24px 22px; background:var(--warn-soft); border-top:1px solid var(--warn)}
@@ -343,7 +350,7 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
   <div class="lpage on" data-page="1">
     <p class="eyebrow" style="margin-top:22px">Page 1 of 3 &middot; what you are labelling</p>
     <p class="lede">We are studying the tools people use to trade on Polymarket. For each tool we want to know two
-    things: does it use an <b>AI language model to predict market probabilities</b>, and does it
+    things: does it use an <b>AI language model to predict market probabilities or give trading suggestions</b>, and does it
     <b>place trades by itself</b>? Your answers are compared with ours, so we can tell whether these two ideas
     are clear from a product's website alone. This is a test of the <b>instructions</b>, not of you &mdash; if anything is unclear, say so in the box at the end.</p>
     <p class="lede">A <b>prediction market</b> lets people bet on whether something will happen &mdash; an
@@ -360,17 +367,20 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
   <div class="lpage" data-page="2">
     <p class="eyebrow" style="margin-top:22px">Page 2 of 3 &middot; products with an AI feature</p>
     <div class="dcard">
-      <header><h2>1. AI <em>Does a large language model predict the market's probability?</em></h2></header>
+      <header><h2>1. AI <em>Does a large language model predict the market's probability or give trading suggestions?</em></h2></header>
       <div class="dbody">
         <p class="core">The product uses a <b>large language model</b> &mdash; GPT, ChatGPT, Claude, OpenClaw, or a
-        comparable AI language model &mdash; to <b>predict the probability of a market outcome</b>.</p>
+        comparable AI language model &mdash; to <b>predict the probability of a market outcome</b> or
+        <b>get suggestions on trading</b>.</p>
         <div class="aside"><p>Every Polymarket market has a <b>price</b>, and that price <b>is</b> the market's
         implied probability. A product is AI when a language model forms its <b>own</b> estimate of that
         probability &mdash; the gap between its estimate and the market price is the
-        <b>predicted opportunity</b> it offers the trader.</p></div>
+        <b>predicted opportunity</b> it offers the trader. A product is also AI when a language model gives
+        the trader <b>suggestions on what to trade</b>.</p></div>
         <p class="lede" style="margin-top:16px">In practice this is a product that asks a language model to read the
         news and say <b>how likely an outcome is</b> &mdash; then shows you that number, or the gap between it and
-        the market price, as a reason to trade.</p>
+        the market price, as a reason to trade. It is also a product whose AI assistant <b>suggests trades</b>
+        for you to make.</p>
       </div>
     </div>
     <div class="pager"><button class="nav" type="button" data-go="-1">&larr; Back</button>
@@ -429,9 +439,10 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
       <div class="def">
         <h3><span class="dot"></span>1. AI</h3>
         <p class="core">The product uses a <b>large language model</b> to <b>predict the probability of a
-        market outcome</b>.</p>
+        market outcome</b> or <b>get suggestions on trading</b>.</p>
         <div class="aside"><p>The market price <b>is</b> the market's probability. AI means a language model
-        forms its <b>own</b> estimate of it &mdash; the gap is the <b>predicted opportunity</b>.</p></div>
+        forms its <b>own</b> estimate of it &mdash; the gap is the <b>predicted opportunity</b> &mdash; or
+        gives the trader <b>trading suggestions</b>.</p></div>
       </div>
       <div class="def">
         <h3><span class="dot"></span>2. Agent</h3>
@@ -465,7 +476,7 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
           <button class="tab" type="button" id="tabText" role="tab" aria-selected="false">Page text</button>
           <button class="tab right" type="button" id="btnTall">Expand</button>
         </div>
-        <div class="view" id="viewShot"><img id="shot" alt="The product's website"></div>
+        <div class="view" id="viewShot"><img id="shot" alt="The product's website"><video id="shotVid" class="hidden" controls muted loop playsinline preload="metadata" aria-label="Screen recording of the product"></video><p class="vidnote hidden" id="shotVidNote"></p></div>
         <div class="view hidden viewText" id="viewText"><pre class="ptext" id="ptext"></pre></div>
         <div class="capfail hidden" id="capFail">
           <h3>This site did not load when we captured it</h3>
@@ -476,7 +487,7 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
       <div class="qs">
         <div class="q">
           <div class="top"><h3>1. AI</h3>
-            <span class="askq">Does a large language model predict the market's probability?</span></div>
+            <span class="askq">Does a large language model predict the market's probability or give trading suggestions?</span></div>
           <div class="seg" role="group" aria-label="AI">
             <button class="opt y" type="button" data-q="ai" data-v="1" aria-pressed="false">Yes</button>
             <button class="opt n" type="button" data-q="ai" data-v="0" aria-pressed="false">No</button>
@@ -551,7 +562,7 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
           <button class="tab" type="button" id="rvTabText" role="tab" aria-selected="false">Page text</button>
           <button class="tab right" type="button" id="rvTall">Expand</button>
         </div>
-        <div class="view" id="rvViewShot"><img id="rvShot" alt="The product's website, exactly as both coders saw it"></div>
+        <div class="view" id="rvViewShot"><img id="rvShot" alt="The product's website, exactly as both coders saw it"><video id="rvShotVid" class="hidden" controls muted loop playsinline preload="metadata" aria-label="Screen recording of the product"></video><p class="vidnote hidden" id="rvShotVidNote"></p></div>
         <div class="view hidden viewText" id="rvViewText"><pre class="ptext" id="rvText"></pre></div>
         <div class="capfail hidden" id="rvCapFail">
           <h3>This site did not load when we captured it</h3>
@@ -566,7 +577,7 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
       <div class="qs" style="padding-top:12px">
         <div class="q">
           <div class="top"><h3>1. AI</h3>
-            <span class="askq">Does a large language model predict the market's probability?</span></div>
+            <span class="askq">Does a large language model predict the market's probability or give trading suggestions?</span></div>
           <div class="seg" role="group" aria-label="Agreed answer: AI">
             <button class="opt y" type="button" data-rq="ai" data-rv="1" aria-pressed="false">Yes</button>
             <button class="opt n" type="button" data-rq="ai" data-rv="0" aria-pressed="false">No</button>
@@ -669,6 +680,8 @@ input[type=text]{width:100%; padding:10px 12px; border:1px solid var(--line-2); 
     <p class="hint mono" id="cvUrl">&mdash;</p>
     <div class="cvq" id="cvAns"></div>
     <img class="cvshot hidden" id="cvShot" alt="The product's website as the coder saw it">
+    <video class="cvshot hidden" id="cvVid" controls muted loop playsinline preload="metadata"
+      aria-label="Screen recording of the product, as the coder saw it"></video>
     <p class="hint hidden" id="cvNoShot" style="margin-top:12px">No screenshot was shown for this product.</p>
     <pre id="cvText"></pre>
   </div>
@@ -690,7 +703,7 @@ const QUIZ = [
       "whenever a whale enters a market.",
     ask: "Code the AI question for this product.", ans: "0",
     why: "Analytics and alerts are not AI. Nothing here says a language model estimates how likely an " +
-      "outcome is - it reports what other traders are doing." },
+      "outcome is or suggests a trade - it reports what other traders are doing." },
   { q: "ag", claim: "Set it and forget it. Follow any wallet and our bot mirrors their Polymarket " +
       "trades for you, around the clock.",
     ask: "Code the Agent question for this product.", ans: "1",
@@ -700,7 +713,7 @@ const QUIZ = [
       "miss a mover.",
     ask: "Code the AI question for this product.", ans: "0",
     why: "This is the trap. \"AI\" in the name and a \"smart score\" are branding and generic ranking. " +
-      "Nothing ties a language model to predicting how likely an outcome is." }
+      "Nothing ties a language model to predicting how likely an outcome is, or to suggesting a trade." }
 ];
 
 const SURVEY = [
@@ -745,6 +758,8 @@ function raterId(){
   return id;
 }
 function show(which){
+  // nothing keeps playing behind another screen
+  document.querySelectorAll("video").forEach(v => { try { v.pause(); } catch (e) {} });
   ["learn","quiz","code","survey","thanks","admin","resolve"].forEach(s => $(s).classList.toggle("hidden", s !== which));
   $("meter").classList.toggle("hidden", which !== "code");
   $("steps").classList.toggle("hidden", which === "resolve");
@@ -886,7 +901,7 @@ function buildQuiz(){
 /* ---- coding ---- */
 function cur(){ return ITEMS[idx]; }
 function isDone(L){ return !!L && (L.dead === true || (L.ai !== undefined && L.ag !== undefined)); }
-function setTab(which){ setTabIn(CODE_IDS, which, !!cur().img); }
+function setTab(which){ setTabIn(CODE_IDS, which, hasMedia(cur())); }
 function render(){
   const b = cur(), L = labels[b.k] || {};
   $("pos").textContent = (idx + 1) + " / " + N;
@@ -985,8 +1000,15 @@ function showCard(k, row){
   if (!it) return;
   $("cvName").textContent = it.p;
   $("cvUrl").textContent = it.cu || it.u || "";
-  const shot = $("cvShot"), none = $("cvNoShot");
-  if (it.img){ shot.src = it.img; shot.classList.remove("hidden"); none.classList.add("hidden"); }
+  const shot = $("cvShot"), vid = $("cvVid"), none = $("cvNoShot");
+  // a recording plays here just as it did on the card; if it cannot, its still is shown
+  vid.onerror = () => {
+    vid.classList.add("hidden");
+    if (it.img){ shot.src = it.img; shot.classList.remove("hidden"); } else none.classList.remove("hidden");
+  };
+  setVideo(vid, it.vid ? it : null);
+  if (it.vid){ shot.removeAttribute("src"); shot.classList.add("hidden"); none.classList.add("hidden"); }
+  else if (it.img){ shot.src = it.img; shot.classList.remove("hidden"); none.classList.add("hidden"); }
   else { shot.removeAttribute("src"); shot.classList.add("hidden"); none.classList.remove("hidden"); }
   $("cvText").textContent = (it.t && it.t.length > 20) ? it.t : "No text could be read from this page.";
   const say = (v) => v === 1 ? "Yes" : v === 0 ? "No" : "\u2014";
@@ -998,8 +1020,9 @@ function showCard(k, row){
     : "<div><b>Your labels</b>AI " + say(ref[0] === undefined ? null : ref[0]) +
         " \u00b7 Agent " + say(ref[1] === undefined ? null : ref[1]) + "</div>";
   $("cardView").classList.remove("hidden");
+  if (it.vid) playQuietly($("cvVid"));
 }
-function hideCard(){ $("cardView").classList.add("hidden"); }
+function hideCard(){ stopVideo($("cvVid")); $("cardView").classList.add("hidden"); }
 
 /* ---- admin: delete stored submissions -------------------------------------------
    Irreversible, so both entry points confirm first and the 'all' one asks the person
@@ -1511,10 +1534,12 @@ const RV_WHY = { ai: "differ on AI", ag: "differ on Agent", both: "differ on bot
                  none: "you agreed" };
 const CODE_IDS = { name: "pName", alias: "bName", addr: "addr", shot: "shot", text: "ptext",
                    tabShot: "tabShot", tabText: "tabText", viewShot: "viewShot", viewText: "viewText",
-                   capFail: "capFail", capWhy: "capWhy", tall: "btnTall" };
+                   capFail: "capFail", capWhy: "capWhy", tall: "btnTall",
+                   vid: "shotVid", vidNote: "shotVidNote" };
 const RV_IDS = { name: "rvName", alias: "rvAlias", addr: "rvAddr", shot: "rvShot", text: "rvText",
                  tabShot: "rvTabShot", tabText: "rvTabText", viewShot: "rvViewShot", viewText: "rvViewText",
-                 capFail: "rvCapFail", capWhy: "rvCapWhy", tall: "rvTall" };
+                 capFail: "rvCapFail", capWhy: "rvCapWhy", tall: "rvTall",
+                 vid: "rvShotVid", vidNote: "rvShotVidNote" };
 ADMIN.sel = new Set();
 ADMIN.res = [];
 
@@ -1527,13 +1552,71 @@ function setTabIn(ids, which, hasShot){
   $(ids.tabText).setAttribute("aria-selected", String(!shot));
   $(ids.viewShot).classList.toggle("hidden", !shot || !hasShot);
   $(ids.viewText).classList.toggle("hidden", shot);
+  const v = $(ids.vid);                    // a recording runs only while its tab is in front
+  if (v && !v.classList.contains("hidden")){ if (shot && hasShot) playQuietly(v); else stopVideo(v); }
+}
+/* ---- a capture is a screenshot, or a short screen recording of the product ------------- */
+function hasMedia(it){ return !!(it && (it.img || it.vid)); }
+const REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+const SHOWN = {};                   // the product each card is showing now, by its view id
+// A recording starts by itself, silent and looping, so nobody can miss that this card
+// moves - unless the person has asked their system for less motion; then they press play.
+function playQuietly(v){
+  if (REDUCED_MOTION || !v.getAttribute("src")) return;
+  v.muted = true;
+  const p = v.play();
+  if (p && typeof p.catch === "function") p.catch(() => {});   // a blocked autoplay leaves the still and the controls
+}
+function stopVideo(v){ try { v.pause(); } catch (e) {} }
+// Point a <video> at a product's recording, or clear it. The still image is its poster.
+function setVideo(v, it){
+  if (it && it.vid){
+    if (v.getAttribute("src") !== it.vid){
+      if (it.img) v.setAttribute("poster", it.img); else v.removeAttribute("poster");
+      v.style.aspectRatio = (it.vw && it.vh) ? it.vw + " / " + it.vh : "";
+      v.setAttribute("src", it.vid);
+    }
+    v.classList.remove("hidden");
+  } else {
+    stopVideo(v);
+    if (v.getAttribute("src")){ v.removeAttribute("src"); v.removeAttribute("poster"); v.load(); }
+    v.classList.add("hidden");
+  }
+}
+// If the recording cannot be fetched or decoded, show its still rather than a dead player.
+function videoFailed(ids){
+  const it = SHOWN[ids.viewShot], v = $(ids.vid);
+  if (!it || !it.vid || v.classList.contains("hidden")) return;
+  v.classList.add("hidden");
+  $(ids.viewShot).classList.remove("isvid");
+  $(ids.tabShot).textContent = "Screenshot";
+  if (it.img){ $(ids.shot).src = it.img; $(ids.shot).classList.remove("hidden"); }
+  $(ids.vidNote).textContent = it.img
+    ? "The recording could not be played in this browser, so this is a still from it."
+    : "The recording could not be played in this browser.";
 }
 function renderSite(it, ids){
+  const view = $(ids.viewShot), vid = $(ids.vid);
+  // A redraw of the product already on screen changes nothing here, and must not reset
+  // the tab, the expanded view, or a recording that is playing.
+  if (SHOWN[ids.viewShot] === it) return;
+  SHOWN[ids.viewShot] = it;
+  if (!vid.dataset.wired){ vid.dataset.wired = "1"; vid.addEventListener("error", () => videoFailed(ids)); }
   $(ids.name).textContent = it.p;
   $(ids.alias).textContent = (it.cu || it.u).replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   $(ids.addr).textContent = it.cu || it.u;
-  const hasShot = !!it.img, hasText = !!(it.t && it.t.length > 20);
-  if (hasShot) $(ids.shot).src = it.img; else $(ids.shot).removeAttribute("src");
+  const hasShot = hasMedia(it), hasText = !!(it.t && it.t.length > 20), isVid = !!it.vid;
+  const img = $(ids.shot), note = $(ids.vidNote);
+  if (it.img && !isVid) img.src = it.img; else img.removeAttribute("src");
+  img.classList.toggle("hidden", isVid);
+  setVideo(vid, it);
+  view.classList.toggle("isvid", isVid);
+  $(ids.tabShot).textContent = isVid ? "Video" : "Screenshot";
+  note.classList.toggle("hidden", !isVid);
+  note.textContent = isVid
+    ? "Screen recording of the product" + (it.vd ? ", " + Math.round(it.vd) + " seconds" : "") +
+      ". It plays in a loop without sound - use the controls to pause, replay or turn the sound on."
+    : "";
   $(ids.text).textContent = hasText ? it.t : "No text could be read from this page.";
   $(ids.tabShot).disabled = !hasShot;
   $(ids.tabShot).style.opacity = hasShot ? "1" : ".4";
@@ -1556,7 +1639,8 @@ function fnv1a(str){
 // Hash of the CARDS, not just the keys: a rebuild that recaptures a product invalidates
 // old links, so the pair can never adjudicate on a page neither coder saw.
 function itemsHash(){
-  return fnv1a(ITEMS.map(i => i.k + "|" + (i.cu || i.u) + "|" + (i.ih || 0) + "|" + ((i.t || "").length)).join("\n"));
+  return fnv1a(ITEMS.map(i => i.k + "|" + (i.cu || i.u) + "|" + (i.ih || 0) + "|" + ((i.t || "").length) +
+                              (i.vid ? "|video" + (i.vd || 0) : "")).join("\n"));
 }
 function refHash(){
   return fnv1a(Object.keys(REF).sort().map(k => k + ":" + (REF[k] || []).slice(0, 2).join("")).join(","));
@@ -2154,8 +2238,8 @@ function rvWire(){
   });
   $("rvGeneral").addEventListener("input", rvSaveDraft);
   $("rvAnyway").addEventListener("change", rvFinishNote);
-  $("rvTabShot").addEventListener("click", () => setTabIn(RV_IDS, "shot", !!RV.view[RV.idx].it.img));
-  $("rvTabText").addEventListener("click", () => setTabIn(RV_IDS, "text", !!RV.view[RV.idx].it.img));
+  $("rvTabShot").addEventListener("click", () => setTabIn(RV_IDS, "shot", hasMedia(RV.view[RV.idx].it)));
+  $("rvTabText").addEventListener("click", () => setTabIn(RV_IDS, "text", hasMedia(RV.view[RV.idx].it)));
   $("rvTall").addEventListener("click", () => {
     const on = !$("rvViewShot").classList.contains("tall");
     $("rvViewShot").classList.toggle("tall", on); $("rvViewText").classList.toggle("tall", on);
